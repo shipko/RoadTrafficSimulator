@@ -405,7 +405,7 @@ Car = (function() {
     this._speed = 0;
     this.width = 1.7;
     this.length = 3 + 2 * random();
-    this.maxSpeed = 30;
+    this.maxSpeed = 30 + 10 * random();
     this.s0 = 2;
     this.timeHeadway = 1.5;
     this.maxAcceleration = 1;
@@ -1631,7 +1631,7 @@ settings = {
     intersection: '#586970',
     road: '#586970',
     roadMarking: '#bbb',
-    hoveredIntersection: '#3d4c53',
+    hoveredIntersection: '#fff',
     tempRoad: '#aaa',
     gridPoint: '#586970',
     grid1: 'rgba(255, 255, 255, 0.5)',
@@ -1640,7 +1640,7 @@ settings = {
   },
   fps: 30,
   lightsFlipInterval: 160,
-  gridSize: 14,
+  gridSize: 7,
   defaultTimeFactor: 5
 };
 
@@ -1793,7 +1793,7 @@ module.exports = Graphics;
 
 },{"../helpers.coffee":6}],18:[function(require,module,exports){
 'use strict';
-var Tool, ToolHighlighter, settings,
+var DAT, Intersection, Tool, ToolHighlighter, settings,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1804,15 +1804,21 @@ Tool = require('./tool.coffee');
 
 settings = require('../settings.coffee');
 
+Intersection = require('../model/intersection.coffee');
+
+DAT = require('dat-gui');
+
 ToolHighlighter = (function(_super) {
   __extends(ToolHighlighter, _super);
 
   function ToolHighlighter() {
     this.draw = __bind(this.draw, this);
+    this.click = __bind(this.click, this);
     this.mouseout = __bind(this.mouseout, this);
     this.mousemove = __bind(this.mousemove, this);
     ToolHighlighter.__super__.constructor.apply(this, arguments);
     this.hoveredCell = null;
+    this.cellWindowGui = null;
   }
 
   ToolHighlighter.prototype.mousemove = function(e) {
@@ -1834,6 +1840,29 @@ ToolHighlighter = (function(_super) {
     return this.hoveredCell = null;
   };
 
+  ToolHighlighter.prototype.click = function(e) {
+    var cell, guiIntersectionCoord, hoverIntersection;
+    cell = this.getCell(e);
+    hoverIntersection = this.getHoveredIntersection(cell);
+    console.log(this.cellWindowGui);
+    if (this.cellWindowGui) {
+      this.cellWindowGui.destroy();
+      this.cellWindowGui = null;
+    }
+    if (hoverIntersection) {
+      console.log('click intersection');
+      this.cellWindowGui = new DAT.GUI();
+      this.cellWindowGui.add(hoverIntersection, 'id');
+      guiIntersectionCoord = this.cellWindowGui.addFolder('Координаты');
+      guiIntersectionCoord.add(hoverIntersection.rect, 'x');
+      guiIntersectionCoord.add(hoverIntersection.rect, 'y');
+      guiIntersectionCoord.add(hoverIntersection.rect, '_height');
+      guiIntersectionCoord.add(hoverIntersection.rect, '_width');
+      guiIntersectionCoord.open();
+      return console.log(hoverIntersection);
+    }
+  };
+
   ToolHighlighter.prototype.draw = function() {
     var color;
     if (this.hoveredCell) {
@@ -1849,7 +1878,7 @@ ToolHighlighter = (function(_super) {
 module.exports = ToolHighlighter;
 
 
-},{"../helpers.coffee":6,"../settings.coffee":16,"./tool.coffee":23}],19:[function(require,module,exports){
+},{"../helpers.coffee":6,"../model/intersection.coffee":9,"../settings.coffee":16,"./tool.coffee":23,"dat-gui":27}],19:[function(require,module,exports){
 'use strict';
 var Intersection, Tool, ToolIntersectionBuilder,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -8873,12 +8902,12 @@ dat.utils.common),
 dat.dom.dom,
 dat.utils.common);
 },{}],30:[function(require,module,exports){
-/*! Copyright (c) 2013 Brandon Aaron (http://brandon.aaron.sh)
- * Licensed under the MIT License (LICENSE.txt).
+/*!
+ * jQuery Mousewheel 3.1.13
  *
- * Version: 3.1.12
- *
- * Requires: jQuery 1.2.2+
+ * Copyright jQuery Foundation and other contributors
+ * Released under the MIT license
+ * http://jquery.org/license
  */
 
 (function (factory) {
@@ -9097,7 +9126,7 @@ dat.utils.common);
 
 },{}],31:[function(require,module,exports){
 /*!
- * jQuery JavaScript Library v2.1.3
+ * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -9107,7 +9136,7 @@ dat.utils.common);
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2014-12-18T15:11Z
+ * Date: 2015-04-28T16:01Z
  */
 
 (function( global, factory ) {
@@ -9165,7 +9194,7 @@ var
 	// Use the correct document accordingly with window argument (sandbox)
 	document = window.document,
 
-	version = "2.1.3",
+	version = "2.1.4",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -9629,7 +9658,12 @@ jQuery.each("Boolean Number String Function Array Date RegExp Object Error".spli
 });
 
 function isArraylike( obj ) {
-	var length = obj.length,
+
+	// Support: iOS 8.2 (not reproducible in simulator)
+	// `in` check used to prevent JIT error (gh-2145)
+	// hasOwn isn't used here due to false negatives
+	// regarding Nodelist length in IE
+	var length = "length" in obj && obj.length,
 		type = jQuery.type( obj );
 
 	if ( type === "function" || jQuery.isWindow( obj ) ) {
