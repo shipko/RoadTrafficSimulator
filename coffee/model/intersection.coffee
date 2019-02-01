@@ -21,6 +21,9 @@ class Intersection
     result.controlSignals = ControlSignals.copy result.controlSignals, result
     result
 
+  remove: ->
+    window.world.removeIntersection(@)
+    
   toJSON: ->
     obj =
       id: @id

@@ -143,6 +143,32 @@ class World
   getRoad: (id) ->
     @roads.get id
 
+  removeRoad: (road) ->
+    @roads.pop road
+
+  removeRelationRoads: (intersection) ->
+    # Удаляем дороги, которые идут в пересечение
+    for id, road of intersection.inRoads
+      # Удаляем эту дорогу в других точках, связанных с ней
+      rr = @intersections.get(road.source.id).roads
+      for road_2 of rr
+        if rr[road_2].id == road.id
+          rr.splice(road_2, 1)
+
+      # Удаляем саму дорогу
+      @removeRoad road
+
+    # Удаляем дороги, которые идут из пересечения
+    for id, road of intersection.roads
+      # Удаляем эту дорогу в других точках, связанных с ней
+      rr = @intersections.get(road.target.id).inRoads
+      for road_2 of rr
+        if rr[road_2].id == road.id
+          rr.splice(road_2, 1)
+
+      # Удаляем саму дорогу
+      @removeRoad road
+
   addCar: (car) ->
     @cars.put car
 
@@ -151,6 +177,10 @@ class World
 
   removeCar: (car) ->
     @cars.pop car
+
+  removeIntersection: (intersection) ->
+    @removeRelationRoads intersection
+    @intersections.pop intersection
 
   addIntersection: (intersection) ->
     @intersections.put intersection

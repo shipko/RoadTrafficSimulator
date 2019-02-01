@@ -32,13 +32,13 @@ class ToolHighlighter extends Tool
     cell = @getCell e
     hoverIntersection = @getHoveredIntersection cell
     
-    console.log @cellWindowGui
+    # console.log @cellWindowGui
     if @cellWindowGui
       @cellWindowGui.destroy()
       @cellWindowGui = null
 
     if hoverIntersection
-      console.log 'click intersection'
+      # console.log 'click intersection'
       @cellWindowGui = new DAT.GUI()
       @cellWindowGui.add hoverIntersection, 'id'
       guiIntersectionCoord = @cellWindowGui.addFolder 'Координаты'
@@ -46,6 +46,8 @@ class ToolHighlighter extends Tool
       guiIntersectionCoord.add hoverIntersection.rect, 'y'
       guiIntersectionCoord.add hoverIntersection.rect, '_height'
       guiIntersectionCoord.add hoverIntersection.rect, '_width'
+      guiIntersectionCoord.add hoverIntersection, 'remove'
+
       guiIntersectionCoord.open()
 
       # ctx = @cellWindowGui
