@@ -48,6 +48,12 @@ class ToolHighlighter extends Tool
       guiIntersectionCoord.add hoverIntersection.rect, '_width'
       guiIntersectionCoord.add hoverIntersection, 'remove'
 
+      guiIntersectionSignals = @cellWindowGui.addFolder 'Фазы светофоров'
+      guiIntersectionSignals.add hoverIntersection.controlSignals, 'signalOne'
+      guiIntersectionSignals.add hoverIntersection.controlSignals, 'signalTwo'
+      guiIntersectionSignals.add hoverIntersection.controlSignals, 'signalThree'
+      guiIntersectionSignals.add hoverIntersection.controlSignals, 'signalFour'
+
       guiIntersectionCoord.open()
 
       # ctx = @cellWindowGui

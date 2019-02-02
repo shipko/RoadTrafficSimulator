@@ -11,6 +11,11 @@ class ControlSignals
     @time = @phaseOffset
     @stateNum = 0
 
+    @signalOne = 'L,,L,'
+    @signalTwo = 'FR,,FR,'
+    @signalThree = ',L,,L'
+    @signalFour = ',FR,,FR'
+
   @copy: (controlSignals, intersection) ->
     if !controlSignals?
       return new ControlSignals intersection
@@ -47,10 +52,18 @@ class ControlSignals
 
   @property 'state',
     get: ->
-      stringState = @states[@stateNum % @states.length]
+      stringState = @getState()[@stateNum % @states.length]
       if @intersection.roads.length <= 2
         stringState = ['LFR', 'LFR', 'LFR', 'LFR']
       (@_decode x for x in stringState)
+
+  getState: ->
+    state = []
+    state.push @signalOne.split(',')
+    state.push @signalTwo.split(',')
+    state.push @signalThree.split(',')
+    state.push @signalFour.split(',')
+    state
 
   flip: ->
     @stateNum += 1
